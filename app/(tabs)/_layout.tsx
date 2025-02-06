@@ -2,7 +2,7 @@ import { Tabs, Redirect } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Foundation from '@expo/vector-icons/Foundation';
 import { useAuth } from '../auth/context/AuthContext';
-import { SIGN_IN_SCREEN_PATH } from '../../constants/urls';
+import { SIGN_IN_SCREEN_PATH } from '../../constants';
 
 const TabLayout = () => {
   const { user, isLoading } = useAuth();
@@ -16,11 +16,17 @@ const TabLayout = () => {
   }
 
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: 'blue' }}>
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: '#f7f7f7',
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Lists',
+          tabBarStyle: { backgroundColor: '#1f1f1f' },
           tabBarIcon: ({ color }) => (
             <Foundation name="list" size={24} color={color} />
           ),
@@ -31,6 +37,7 @@ const TabLayout = () => {
         name="account"
         options={{
           title: 'Account',
+          tabBarStyle: { backgroundColor: '#1f1f1f' },
           tabBarIcon: ({ color }) => (
             <FontAwesome size={28} name="user" color={color} />
           ),

@@ -1,9 +1,11 @@
 import '../App';
 import { Stack } from 'expo-router';
 import { AuthProvider } from './auth/context/AuthContext';
-import { SIGN_IN_SCREEN_PATH } from '../constants/urls';
-import { SIGN_UP_SCREEN_PATH } from '../constants/urls';
-import { TABS_PATH } from '../constants/urls';
+import {
+  SIGN_IN_SCREEN_PATH,
+  SIGN_UP_SCREEN_PATH,
+  TABS_PATH,
+} from '../constants';
 
 const Layout = () => {
   return (

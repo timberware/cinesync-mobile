@@ -1,4 +1,4 @@
-export const randomDirector = () => {
+export const directors = () => {
   const directors = [
     'david@lynch.com',
     'akira@kurosawa.com',

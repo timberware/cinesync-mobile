@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Text, TextInput, Pressable, View, ScrollView } from 'react-native';
 import { Link } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
-import { randomDirector } from '../../shared/utils/randomDirector';
+import { directors } from '../../../constants';
 
 const SignUpScreen = () => {
   const { signUp, isLoading } = useAuth();
@@ -36,7 +36,7 @@ const SignUpScreen = () => {
           <Text className="w-24 text-center text-text mt-3">email</Text>
           <TextInput
             className="pl-1 w-60 bg-secondary text-text rounded"
-            placeholder={randomDirector()}
+            placeholder={directors()}
             placeholderTextColor="#999999"
             value={email}
             onChangeText={setEmail}
