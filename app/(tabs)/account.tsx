@@ -6,6 +6,9 @@ const AccountScreen = () => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.email}>Logged in as: {user?.id}</Text>
+      <Text style={styles.email}>Logged in as: {user?.accessToken}</Text>
+      <Text style={styles.email}>Logged in as: {user?.username}</Text>
       <Text style={styles.email}>Logged in as: {user?.email}</Text>
       <Button title="Sign Out" onPress={signOut} color="red" />
     </View>

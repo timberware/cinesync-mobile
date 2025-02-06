@@ -1,19 +1,18 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { ScrollView } from 'react-native';
+import { List } from '../../components/List/List';
 
 const Tab = () => {
   return (
-    <View style={styles.container}>
-      <Text>Tab [Lists]</Text>
-    </View>
+    <ScrollView
+      contentContainerStyle={{
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flex: 1,
+      }}
+    >
+      <List />
+    </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
 
 export default Tab;

@@ -3,8 +3,7 @@ import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
 import { Link } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
 import { Redirect } from 'expo-router';
-import { randomDirector } from '../../shared/utils/randomDirector';
-import { TABS_PATH } from '../../../constants/urls';
+import { directors, TABS_PATH } from '../../../constants';
 
 const SignInScreen = () => {
   const { signIn, user, isLoading } = useAuth();
@@ -41,7 +40,7 @@ const SignInScreen = () => {
           <Text className="w-24 text-center text-text mt-3">email</Text>
           <TextInput
             className="pl-1 w-60 bg-secondary text-text rounded"
-            placeholder={randomDirector()}
+            placeholder={directors()}
             placeholderTextColor="#999999"
             value={email}
             onChangeText={setEmail}

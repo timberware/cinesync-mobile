@@ -1,15 +1,17 @@
 import React, { createContext, useContext, PropsWithChildren } from 'react';
-import { useStorageState } from '../hooks/useStorageState';
 import { router } from 'expo-router';
-import { LOGIN } from '../../../constants/urls';
-import { SIGNUP } from '../../../constants/urls';
+import { useStorageState } from '../../../hooks/useStorageState';
+import { AUTH, SIGN_IN_SCREEN_PATH, TABS_PATH } from '../../../constants';
 
-type AuthDataType = {
+export type AuthDataType = {
+  id: string;
   email: string;
+  username: string;
+  avatarName: string | null;
   accessToken: string;
 };
 
-type AuthContextType = {
+export type AuthContextType = {
   user: AuthDataType | null;
   signIn: (email: string | null, password: string | null) => Promise<void>;
   signUp: (
@@ -40,27 +42,50 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     (value: AuthDataType | null) => void,
   ];
 
+  const fetchUserData = async (
+    accessToken: string,
+  ): Promise<{
+    id: string;
+    username: string;
+    email: string;
+    avatarName: string | null;
+  }> => {
+    const response = await fetch(`${AUTH}/whoami`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('failed to fetch user data');
+    }
+
+    return response.json();
+  };
+
   const signIn = async (email: string | null, password: string | null) => {
     if (!email || !password) {
       throw new Error('email and password are required');
     }
 
     try {
-      const response = await fetch(LOGIN, {
+      const authResponse = await fetch(AUTH + '/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'failed to sign in');
+      if (!authResponse.ok) {
+        throw new Error('failed to sign in');
       }
 
-      const { accessToken } = await response.json();
+      const { accessToken } = await authResponse.json();
+
+      const userData = await fetchUserData(accessToken);
 
       setAuthData({
-        email,
+        ...userData,
         accessToken,
       });
     } catch (error) {
@@ -79,7 +104,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     }
 
     try {
-      const response = await fetch(SIGNUP, {
+      const response = await fetch(AUTH + '/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -95,7 +120,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       }
 
       await signIn(email, password);
-      router.replace('/(tabs)');
+      router.replace(TABS_PATH);
     } catch (error) {
       console.error('sign up error:', error);
       throw error;
@@ -105,7 +130,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const signOut = async () => {
     try {
       setAuthData(null);
-      router.replace('/auth/screens/SignInScreen');
+      router.replace(SIGN_IN_SCREEN_PATH);
     } catch (error) {
       console.error('sign out error:', error);
       throw error;
