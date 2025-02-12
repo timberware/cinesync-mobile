@@ -25,10 +25,10 @@ export type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
+export const useAuthContext = () => {
   const value = useContext(AuthContext);
   if (!value) {
-    throw new Error('useAuth must be wrapped in an <AuthProvider />');
+    throw new Error('useAuthContext must be wrapped in an <AuthProvider />');
   }
 
   return {
@@ -151,3 +151,5 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     </AuthContext.Provider>
   );
 };
+
+export default AuthProvider;

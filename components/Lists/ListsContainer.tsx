@@ -1,13 +1,13 @@
 import React from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
-import { ListType } from '../../ambient';
-import { ListItem } from './ListItem';
+import { ListType } from '../../types';
+import { ListsItem } from './ListsItem';
 
 type ListContainerProps = {
   lists: ListType[];
 };
 
-export const ListContainer: React.FC<ListContainerProps> = ({ lists }) => {
+export const ListsContainer: React.FC<ListContainerProps> = ({ lists }) => {
   return (
     <ScrollView
       className="bg-background"
@@ -22,21 +22,15 @@ export const ListContainer: React.FC<ListContainerProps> = ({ lists }) => {
           flexWrap: 'wrap',
         }}
       >
-        {lists?.map((item) => (
+        {lists?.map((list) => (
           <ScrollView
-            key={item.id}
+            key={list.id}
             style={styles.item}
             contentContainerStyle={{
               justifyContent: 'center',
             }}
           >
-            <ListItem
-              id={item.id}
-              title={item.name}
-              movies={item.movies}
-              sharees={item.sharees}
-              imageUrl={item.posterUrl || ''}
-            />
+            <ListsItem list={list} />
           </ScrollView>
         ))}
       </ScrollView>

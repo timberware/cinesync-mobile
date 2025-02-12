@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../app/auth/context/AuthContext';
-import type { Lists, ListType } from '../ambient';
+import { useAuthContext } from '../app/auth/context/AuthContext';
+import type { Lists, ListType } from '../types';
 import { LISTS, MOVIES } from '../constants';
 
 type UseFetchListsReturn = {
@@ -11,7 +11,7 @@ type UseFetchListsReturn = {
 };
 
 export const useUserLists = (): UseFetchListsReturn => {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const [lists, setLists] = useState<ListType[]>([]);
   const [sharedLists, setSharedLists] = useState<ListType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
