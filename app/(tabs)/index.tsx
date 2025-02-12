@@ -1,5 +1,5 @@
 import { ScrollView } from 'react-native';
-import { List } from '../../components/List/List';
+import { Lists } from '../../components/Lists/Lists';
 
 const Tab = () => {
   return (
@@ -10,7 +10,7 @@ const Tab = () => {
         flex: 1,
       }}
     >
-      <List />
+      <Lists />
     </ScrollView>
   );
 };

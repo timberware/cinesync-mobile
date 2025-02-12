@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Text, TextInput, Pressable, View, ScrollView } from 'react-native';
 import { Link } from 'expo-router';
-import { useAuth } from '../context/AuthContext';
+import { useAuthContext } from '../context/AuthContext';
 import { directors } from '../../../constants';
 
 const SignUpScreen = () => {
-  const { signUp, isLoading } = useAuth();
+  const { signUp, isLoading } = useAuthContext();
   const [username, setUsername] = useState<string | undefined>(undefined);
   const [email, setEmail] = useState<string | undefined>(undefined);
   const [password, setPassword] = useState<string | undefined>(undefined);

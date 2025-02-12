@@ -1,8 +1,8 @@
 import { View, Text, StyleSheet, Button } from 'react-native';
-import { useAuth } from '../auth/context/AuthContext';
+import { useAuthContext } from '../auth/context/AuthContext';
 
 const AccountScreen = () => {
-  const { user, signOut } = useAuth();
+  const { user, signOut } = useAuthContext();
 
   return (
     <View style={styles.container}>

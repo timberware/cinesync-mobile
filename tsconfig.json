@@ -10,5 +10,10 @@
     "sourceMap": true,
     "strict": true
   },
-  "exclude": ["tailwind.config.js", "metro.config.js", ".eslintrc.js"]
+  "exclude": [
+    "tailwind.config.js",
+    "metro.config.js",
+    ".eslintrc.js",
+    "babel.config.js"
+  ]
 }
