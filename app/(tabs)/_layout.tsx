@@ -1,11 +1,11 @@
 import { Tabs, Redirect } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Foundation from '@expo/vector-icons/Foundation';
-import { useAuth } from '../auth/context/AuthContext';
+import { useAuthContext } from '../auth/context/AuthContext';
 import { SIGN_IN_SCREEN_PATH } from '../../constants';
 
 const TabLayout = () => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading } = useAuthContext();
 
   if (isLoading) {
     return null;

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { ListContainer } from './ListContainer';
+import { ListsContainer } from './ListsContainer';
 import { useUserLists } from '../../hooks/useUserLists';
 
-export const List = () => {
+export const Lists = () => {
   const [showModal, setShowModal] = useState(false);
   const { lists, sharedLists, loading, error } = useUserLists();
 
@@ -22,7 +22,7 @@ export const List = () => {
           flex: 1,
         }}
       >
-        <ListContainer lists={lists} />
+        <ListsContainer lists={lists} />
       </ScrollView>
 
       {sharedLists?.length ? (
@@ -31,7 +31,7 @@ export const List = () => {
             flex: 1,
           }}
         >
-          <ListContainer lists={sharedLists} />
+          <ListsContainer lists={sharedLists} />
         </ScrollView>
       ) : null}
     </View>
