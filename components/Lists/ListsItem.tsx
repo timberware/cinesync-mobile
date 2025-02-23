@@ -11,7 +11,7 @@ type ListsItemProps = {
 };
 
 export const ListsItem: React.FC<ListsItemProps> = ({ list }) => {
-  const { setSelectedList, selectedList } = useListContext();
+  const { setSelectedList } = useListContext();
 
   const handlePress = () => {
     setSelectedList({

@@ -3,13 +3,11 @@ import { TouchableOpacity } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 
 type MovieWatchedComponentProps = {
-  movieId: string;
   watched: boolean;
   onPress?: () => void;
 };
 
 export const MovieWatched: React.FC<MovieWatchedComponentProps> = ({
-  movieId,
   watched,
   onPress,
 }) => {
