@@ -40,6 +40,13 @@ export type Lists = {
   count: number;
 };
 
+export type ListInfo = {
+  id: string;
+  name: string;
+  isPrivate: boolean;
+  creatorId: string;
+};
+
 export type Stats = {
   id?: string;
   listCount: number;

@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { View, Text } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Feather from '@expo/vector-icons/Feather';
@@ -9,6 +10,7 @@ import { getPosterUrl } from '../../constants';
 import { MovieWatched } from './MovieWatched';
 import { MovieDelete } from './MovieDelete';
 import { MoviePoster } from './MoviePoster';
+import { useListMovies } from '../../hooks/useListMovies';
 
 type MovieItemProps = {
   movie: MovieType;
@@ -17,6 +19,23 @@ type MovieItemProps = {
 export const MovieItem: React.FC<MovieItemProps> = ({ movie }) => {
   const { id } = useLocalSearchParams();
   const swipeableRef = useRef<any>(null);
+  const { deleteMovie, toggleWatched } = useListMovies(id.toString());
+
+  const watchedToast = (title: string) => {
+    Toast.show({
+      type: 'success',
+      text1: `${movie.watched ? 'Marked as Unwatched' : 'Marked as Watched'}`,
+      text2: `${title}`,
+    });
+  };
+
+  const deleteToast = (title: string) => {
+    Toast.show({
+      type: 'error',
+      text1: 'Removed from list',
+      text2: `${title}`,
+    });
+  };
 
   const renderLeftActions = () => {
     return (
@@ -43,12 +62,20 @@ export const MovieItem: React.FC<MovieItemProps> = ({ movie }) => {
     );
   };
 
-  const handleSwipeableOpen = (direction: 'left' | 'right') => {
+  const handleSwipeableOpen = async (
+    direction: 'left' | 'right',
+    title: string,
+  ) => {
     if (direction === 'left') {
-      console.log('toggling watched:', movie.id);
-    } else if (direction === 'right') {
-      console.log('remove movie:', movie.id);
+      await toggleWatched(movie.id);
+      watchedToast(title);
     }
+
+    if (direction === 'right') {
+      await deleteMovie(movie.id);
+      deleteToast(title);
+    }
+
     swipeableRef.current?.reset();
   };
 
@@ -56,12 +83,18 @@ export const MovieItem: React.FC<MovieItemProps> = ({ movie }) => {
     swipeableRef.current?.reset();
   };
 
-  const handleWatchedButtonPress = () => {
+  const handleWatchedButtonPress = async (title: string) => {
     swipeableRef.current?.openLeft();
+    await toggleWatched(movie.id);
+    watchedToast(title);
+    swipeableRef.current?.reset();
   };
 
-  const handleDeleteButtonPress = () => {
+  const handleDeleteButtonPress = async (title: string) => {
     swipeableRef.current?.openRight();
+    await deleteMovie(movie.id);
+    deleteToast(title);
+    swipeableRef.current?.reset();
   };
 
   return (
@@ -73,12 +106,17 @@ export const MovieItem: React.FC<MovieItemProps> = ({ movie }) => {
         rightThreshold={40}
         renderLeftActions={renderLeftActions}
         renderRightActions={renderRightActions}
-        onSwipeableOpen={handleSwipeableOpen}
+        onSwipeableOpen={(direction, swipeable) =>
+          handleSwipeableOpen(direction, movie.title)
+        }
         onSwipeableClose={handleSwipeableClose}
       >
         <View className="relative flex flex-row bg-secondary p-3 rounded-xl mb-4">
           <View className="w-44 mr-3 rounded-xl overflow-hidden">
-            <MoviePoster src={getPosterUrl(movie.posterUrl)} />
+            <MoviePoster
+              watched={movie.watched}
+              src={getPosterUrl(movie.posterUrl)}
+            />
           </View>
 
           <View className="flex-1">
@@ -104,21 +142,16 @@ export const MovieItem: React.FC<MovieItemProps> = ({ movie }) => {
             </Text>
           </View>
 
-          <View className="absolute bottom-2 left-2">
-            <View className="px-1 py-0.5 rounded-xl bg-accent">
-              <MovieWatched
-                watched={movie.watched}
-                movieId={movie.id}
-                onPress={handleWatchedButtonPress}
-              />
-            </View>
+          <View className="absolute bottom-2 left-2 px-1 py-0.5 rounded-xl bg-accent">
+            <MovieWatched
+              watched={movie.watched}
+              onPress={() => handleWatchedButtonPress(movie.title)}
+            />
           </View>
           <View className="absolute bottom-2 right-2">
             <View className="px-1 py-0.5 rounded-xl bg-accent">
               <MovieDelete
-                listId={id.toString()}
-                movieId={movie.id}
-                onPress={handleDeleteButtonPress}
+                onPress={() => handleDeleteButtonPress(movie.title)}
               />
             </View>
           </View>

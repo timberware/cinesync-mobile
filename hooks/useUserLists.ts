@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
-import { useAuthContext } from '../app/auth/context/AuthContext';
+import useSWR from 'swr';
 import type { Lists, ListType } from '../types';
+import { useAuthContext } from '../app/auth/context/AuthContext';
 import { LISTS, MOVIES } from '../constants';
+import { fetcher } from './swr/fetcher';
 
 type UseFetchListsReturn = {
   lists: ListType[];
@@ -10,135 +11,60 @@ type UseFetchListsReturn = {
   error?: Error;
 };
 
+const fetchDetailedLists = async (lists: ListType[], token: string) => {
+  return await Promise.all(
+    lists.map(async (list: ListType) => {
+      const [moviesRes, shareesRes] = await Promise.all([
+        fetcher(`${MOVIES}?listId=${list.id}`, token),
+        fetcher(`${LISTS}/${list.id}/sharees`, token),
+      ]);
+
+      return {
+        ...list,
+        movies: moviesRes.movies.length,
+        posterUrl:
+          moviesRes.movies[Math.floor(Math.random() * moviesRes.movies.length)]
+            ?.posterUrl,
+        sharees: shareesRes.length,
+      };
+    }),
+  );
+};
+
 export const useUserLists = (): UseFetchListsReturn => {
   const { user } = useAuthContext();
-  const [lists, setLists] = useState<ListType[]>([]);
-  const [sharedLists, setSharedLists] = useState<ListType[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<Error | undefined>(undefined);
+  const token = user?.accessToken;
 
-  useEffect(() => {
-    if (!user || !user.accessToken) {
-      setLoading(false);
-      return;
-    }
+  const { data: listsData, error: listsError } = useSWR<Lists>(
+    token ? [`${LISTS}?id=${user.id}`, token] : null,
+    ([url, token]: [string, string]) => fetcher(url, token),
+  );
 
-    const fetchLists = async () => {
-      try {
-        const { accessToken, id } = user;
-        const [listResponse, sharedListsResponse] = await Promise.all([
-          fetch(`${LISTS}?id=${id}`, {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }),
-          fetch(`${LISTS}?id=${id}&shared=true`, {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }),
-        ]);
+  const { data: sharedListsData, error: sharedListsError } = useSWR<Lists>(
+    token ? [`${LISTS}?id=${user.id}&shared=true`, token] : null,
+    ([url, token]: [string, string]) => fetcher(url, token),
+  );
 
-        if (listResponse.status !== 200 && sharedListsResponse.status !== 200) {
-          setLoading(false);
-          return;
-        }
+  const { data: detailedLists } = useSWR(
+    listsData?.lists && token
+      ? ['detailedLists', listsData.lists, token]
+      : null,
+    ([_, lists, token]: [string, ListType[], string]) =>
+      fetchDetailedLists(lists, token),
+  );
 
-        const { lists }: Lists = await listResponse.json();
-        const { lists: sharedLists }: Lists = await sharedListsResponse.json();
+  const { data: detailedSharedLists } = useSWR(
+    sharedListsData?.lists && token
+      ? ['detailedSharedLists', sharedListsData.lists, token]
+      : null,
+    ([_, lists, token]: [string, ListType[], string]) =>
+      fetchDetailedLists(lists, token),
+  );
 
-        const [
-          moviesInListsResponse,
-          moviesInSharedListsResponse,
-          shareesResponse,
-          shareesInSharedResponse,
-        ] = await Promise.all([
-          Promise.all(
-            lists.map((l: ListType) =>
-              fetch(`${MOVIES}?listId=${l.id}`, {
-                method: 'GET',
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                },
-              }),
-            ),
-          ),
-          Promise.all(
-            sharedLists.map((l: ListType) =>
-              fetch(`${MOVIES}?listId=${l.id}`, {
-                method: 'GET',
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                },
-              }),
-            ),
-          ),
-          Promise.all(
-            lists.map((l: ListType) =>
-              fetch(`${LISTS}/${l.id}/sharees`, {
-                method: 'GET',
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                },
-              }),
-            ),
-          ),
-          Promise.all(
-            sharedLists.map((l: ListType) =>
-              fetch(`${LISTS}/${l.id}/sharees`, {
-                method: 'GET',
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                },
-              }),
-            ),
-          ),
-        ]);
-
-        const moviesInLists = await Promise.all(
-          moviesInListsResponse.map((m) => m.json()),
-        );
-        const moviesInSharedLists = await Promise.all(
-          moviesInSharedListsResponse.map((m) => m.json()),
-        );
-        const sharees = await Promise.all(shareesResponse.map((s) => s.json()));
-        const shareesInShared = await Promise.all(
-          shareesInSharedResponse.map((s) => s.json()),
-        );
-
-        lists.forEach((l, index) => {
-          l.movies = moviesInLists[index].movies.length;
-          l.posterUrl =
-            l.movies &&
-            moviesInLists[index].movies[Math.floor(Math.random() * l.movies)]
-              ?.posterUrl;
-          l.sharees = sharees[index].length;
-        });
-
-        sharedLists.forEach((l, index) => {
-          l.movies = moviesInSharedLists[index].movies.length;
-          l.posterUrl =
-            l.movies &&
-            moviesInSharedLists[index].movies[
-              Math.floor(Math.random() * l.movies)
-            ]?.posterUrl;
-          l.sharees = shareesInShared[index].length;
-        });
-
-        setLists(lists);
-        setSharedLists(sharedLists);
-      } catch (e) {
-        console.error(e);
-        setError(e as Error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLists();
-  }, [user]);
-
-  return { lists, sharedLists, loading, error };
+  return {
+    lists: detailedLists || [],
+    sharedLists: detailedSharedLists || [],
+    loading: !listsData && !listsError,
+    error: listsError || sharedListsError,
+  };
 };
